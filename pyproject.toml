@@ -1,0 +1,34 @@
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "quicken-qdf-converter"
+version = "0.1.0"
+description = "Read legacy Quicken QDF v3 files into a lossless SQLite archive"
+license = "Unlicense"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+quicken-qdf = "quicken_qdf.cli:main"
+
+[dependency-groups]
+dev = ["ruff>=0.15.20", "pyright>=1.1.411"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/quicken_qdf"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "ANN", "RUF"]
+
+[tool.pyright]
+include = ["src", "tests/support.py", "tests/unit"]
+extraPaths = ["src"]
+pythonVersion = "3.11"
+typeCheckingMode = "strict"

@@ -1,0 +1,48 @@
+{
+  "source": "https://www.rfc-editor.org/rfc/rfc2040.html#section-9.3",
+  "mode": "RC5-32 CBC; no unpadding; the last vector includes one explicit padding byte",
+  "vectors": [
+    {
+      "rounds": 0,
+      "key_hex": "00",
+      "iv_hex": "0000000000000000",
+      "plaintext_hex": "0000000000000000",
+      "ciphertext_hex": "7a7bba4d79111d1e"
+    },
+    {
+      "rounds": 1,
+      "key_hex": "11",
+      "iv_hex": "0000000000000000",
+      "plaintext_hex": "0000000000000000",
+      "ciphertext_hex": "2f759fe7ad86a378"
+    },
+    {
+      "rounds": 12,
+      "key_hex": "00",
+      "iv_hex": "0102030405060708",
+      "plaintext_hex": "1020304050607080",
+      "ciphertext_hex": "b2b3209db6594da4"
+    },
+    {
+      "rounds": 12,
+      "key_hex": "0102030405",
+      "iv_hex": "0000000000000000",
+      "plaintext_hex": "ffffffffffffffff",
+      "ciphertext_hex": "97e0787837ed317f"
+    },
+    {
+      "rounds": 12,
+      "key_hex": "01020304050607081020304050607080",
+      "iv_hex": "0102030405060708",
+      "plaintext_hex": "1020304050607080",
+      "ciphertext_hex": "294ddb46b3278d60"
+    },
+    {
+      "rounds": 8,
+      "key_hex": "0102030405",
+      "iv_hex": "0000000000000000",
+      "plaintext_hex": "ffffffffffffffff7875dbf6738c64781122334455667701",
+      "ciphertext_hex": "7875dbf6738c64787cb3f1df34f948117fd1a023a5bba217"
+    }
+  ]
+}
