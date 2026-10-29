@@ -464,16 +464,24 @@ the entry without assigning unsupported semantic column names.
 
 ## Companion files
 
-These files are archived byte-for-byte in `source_files`; they are not treated
-as transaction sources:
+These files are archived byte-for-byte in `source_files`. HCX history also has
+a decoded export, separate from QDF transactions:
 
 | Extension | Observation |
 | --- | --- |
 | `.QSD` | May begin with a `QW Ver. 3.00.00` marker and filename; settings-like content |
-| `.HCX` | Companion data; its format is not established |
+| `.HCX` | Historical currency exchange-rate database; see the [HCX specification](hcx-format.md) |
+| `.QPH` | Security prices, volume and splits; versions 1–3 supported |
+| `.QEL` | Online objects: validated C-Index tree and reassembled serialized records |
+| `.IDX` | QDF index cache: offset/length directory and array segments |
 
-Extensions and printable content do not establish complete semantics. The reader
-archives companions without regenerating or modifying them.
+The HCX decoder follows Quicken 2002's enhanced multi-currency module and its
+index library, corroborated by a later vendor sample. It exports native currency
+references, dates, binary32 rates and flags, with raw nodes and index entries.
+It does not infer currency names or apply historical rates to ledger amounts.
+QSD format-3 record boundaries, names, IDs and deleted versions are decoded;
+settings-specific bodies remain opaque. See [companion details](companion-formats.md).
+The reader never regenerates or modifies companions.
 
 ## SQLite mapping and validation boundary
 
@@ -483,6 +491,10 @@ fragments → indexed logical records → interpreted tables form the provenance
 chain. Unknown page types, fields, free fragments and opaque payloads remain
 available. The `ledger` view joins interpreted transaction fields; `source_files`,
 `pages`, `record_fragments`, `legacy_records` and `record_parts` retain raw evidence.
+SQLite `user_version=2` adds the `hcx_*`, `qph_*`, `qsd_*`, `qel_*` and `idx_*` tables;
+the existing QDF tables
+retain their columns and meaning. The exporter still creates a new database
+and does not migrate existing exports.
 
 The converter builds a **new** database, enforces foreign keys, writes in one
 data transaction, checks `integrity_check` and `foreign_key_check`, and verifies

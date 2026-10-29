@@ -10,7 +10,13 @@ from importlib.resources import files
 from pathlib import Path
 from typing import Literal, TypeAlias, cast
 
+from .cindex import NODE_SIZE, CIndex
 from .format import QDF, FormatError, FragmentKey, RecordIdentity, u16, u32
+from .hcx import HCX
+from .idx import IDX
+from .qel import QEL
+from .qph import QPH
+from .qsd import QSD
 from .report import AccountCount, RecoveryReport, RecoveryWarning
 
 SourceRole: TypeAlias = Literal["qdf", "companion"]
@@ -49,6 +55,265 @@ def _write_sources(db: sqlite3.Connection, snapshots: Sequence[Snapshot], qdf: Q
             "INSERT INTO pages VALUES(?,?,?,?,?,?)",
             (number, 1, u16(page, 36) if number else None, page[start : start + 16], 1, page),
         )
+
+
+def _write_cindex(
+    db: sqlite3.Connection, source_id: int, container: CIndex, prefix: Literal["hcx", "qel"]
+) -> None:
+    db.execute(
+        f"INSERT INTO {prefix}_files VALUES(?,?,?,?,?)",
+        (source_id, container.header, NODE_SIZE, container.root_node, container.record_count),
+    )
+    db.executemany(
+        f"INSERT INTO {prefix}_nodes VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+        (
+            (
+                source_id,
+                n.number,
+                n.file_offset,
+                n.level,
+                n.left_child,
+                n.next_node,
+                n.previous_node,
+                n.entry_count,
+                n.free_bytes,
+                n.data,
+                int(n.active),
+            )
+            for n in container.nodes
+        ),
+    )
+    db.executemany(
+        f"INSERT INTO {prefix}_index_entries VALUES(?,?,?,?,?,?,?,?,?,?)",
+        (
+            (
+                source_id,
+                r.node_number,
+                r.node_offset,
+                r.index_number,
+                int(r.duplicate),
+                r.record_number,
+                r.key,
+                r.payload,
+                r.child_node,
+                r.raw,
+            )
+            for r in container.index_records
+        ),
+    )
+
+
+def _write_hcx(db: sqlite3.Connection, snapshots: Sequence[Snapshot]) -> None:
+    for source_id, (path, role, data) in enumerate(snapshots, 1):
+        if role != "companion" or path.suffix.lower() != ".hcx":
+            continue
+        hcx = HCX(data)
+        _write_cindex(db, source_id, hcx, "hcx")
+        for record in hcx.records:
+            packed = record.packed_date
+            try:
+                rate_date = date((packed >> 16) + 1900, (packed >> 8) & 255, packed & 255)
+            except ValueError as error:
+                raise FormatError(f"HCX record {record.record_number}: invalid date") from error
+            db.execute(
+                "INSERT INTO hcx_exchange_rates VALUES(?,?,?,?,?,?,?,?,?,?)",
+                (
+                    source_id,
+                    record.record_number,
+                    record.currency_ref,
+                    rate_date.isoformat(),
+                    packed,
+                    record.rate,
+                    record.flags,
+                    record.page_number,
+                    record.page_offset,
+                    record.payload,
+                ),
+            )
+        if hcx.records:
+            _issue(
+                db,
+                "hcx_currency_identity",
+                f"{path.name}: currency references are legacy IDs; currency names and "
+                "rate direction are not inferred and rates are not applied to ledger amounts",
+                severity="info",
+            )
+
+
+def _legacy_date(packed: int, context: str) -> str:
+    try:
+        return date((packed >> 16) + 1900, (packed >> 8) & 255, packed & 255).isoformat()
+    except ValueError as error:
+        raise FormatError(f"{context}: invalid date") from error
+
+
+def _write_other_companions(db: sqlite3.Connection, snapshots: Sequence[Snapshot]) -> None:
+    for source_id, (path, role, data) in enumerate(snapshots, 1):
+        if role != "companion":
+            continue
+        suffix = path.suffix.lower()
+        if suffix == ".qph":
+            qph = QPH(data)
+            db.execute("INSERT INTO qph_files VALUES(?,?,?)", (source_id, qph.version, qph.header))
+            db.executemany(
+                "INSERT INTO qph_symbols VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+                (
+                    (
+                        source_id,
+                        s.offset,
+                        s.next_offset,
+                        s.identity_type,
+                        s.symbol,
+                        s.exchange_code,
+                        s.stored_exchange_code,
+                        s.file_identity,
+                        s.security_ref,
+                        s.quote_head,
+                        s.raw,
+                    )
+                    for s in qph.symbols
+                ),
+            )
+            db.executemany(
+                "INSERT INTO qph_quotes VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                (
+                    (
+                        source_id,
+                        q.offset,
+                        q.symbol_offset,
+                        q.next_offset,
+                        _legacy_date(q.packed_date, f"QPH quote at {q.offset}"),
+                        q.packed_date,
+                        q.priority,
+                        q.kind,
+                        q.field_mask,
+                        q.close,
+                        q.high,
+                        q.low,
+                        q.volume,
+                        q.volume_base,
+                        q.volume_multiplier,
+                        q.split_numerator,
+                        q.split_denominator,
+                        q.status,
+                        q.raw,
+                    )
+                    for q in qph.quotes
+                ),
+            )
+            for kind, records in (
+                ("free_symbol", qph.free_symbols),
+                ("free_quote", qph.free_quotes),
+            ):
+                db.executemany(
+                    "INSERT INTO qph_unused_regions VALUES(?,?,?,?,?)",
+                    ((source_id, r.offset, kind, r.next_offset, r.raw) for r in records),
+                )
+            db.executemany(
+                "INSERT INTO qph_unused_regions VALUES(?,?,?,NULL,?)",
+                ((source_id, r.offset, "unclaimed", r.data) for r in qph.unclaimed_regions),
+            )
+            unknown_symbols = sorted({s.identity_type for s in qph.symbols} - {1, 2})
+            unknown_quotes = sorted({q.kind for q in qph.quotes} - {0, 1})
+            if unknown_symbols or unknown_quotes:
+                _issue(
+                    db,
+                    "qph_unparsed_kinds",
+                    f"{path.name}: symbol kinds {unknown_symbols}, quote kinds {unknown_quotes} "
+                    "retain raw bytes with nullable interpreted values",
+                )
+        elif suffix == ".qsd":
+            qsd = QSD(data)
+            db.execute(
+                "INSERT INTO qsd_files VALUES(?,?,?,?,?,?)",
+                (
+                    source_id,
+                    qsd.identification,
+                    qsd.major_version,
+                    qsd.minor_version,
+                    qsd.revision,
+                    qsd.header,
+                ),
+            )
+            db.executemany(
+                "INSERT INTO qsd_records VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
+                (
+                    (
+                        source_id,
+                        r.number,
+                        r.file_offset,
+                        r.record_type,
+                        r.legacy_id,
+                        int(r.deleted),
+                        int(r.is_eof),
+                        r.name,
+                        r.name_bytes,
+                        r.header,
+                        r.payload,
+                        r.trailer,
+                    )
+                    for r in qsd.records
+                ),
+            )
+            _issue(
+                db,
+                "qsd_payloads_uninterpreted",
+                f"{path.name}: settings record bodies "
+                "remain opaque; physical deleted versions and EOF are retained",
+                severity="info",
+            )
+        elif suffix == ".qel":
+            qel = QEL(data)
+            _write_cindex(db, source_id, qel, "qel")
+            for record in qel.records:
+                db.execute(
+                    "INSERT INTO qel_records VALUES(?,?,?,?,?,?,?,?)",
+                    (
+                        source_id,
+                        record.record_number,
+                        record.index1_key,
+                        record.index2_key,
+                        u16(record.payload),
+                        u16(record.payload, 2),
+                        record.payload[4],
+                        record.payload,
+                    ),
+                )
+                db.executemany(
+                    "INSERT INTO qel_record_parts VALUES(?,?,?,?,?)",
+                    (
+                        (source_id, record.record_number, i, p.node_number, p.node_offset)
+                        for i, p in enumerate(record.parts)
+                    ),
+                )
+            _issue(
+                db,
+                "qel_payloads_uninterpreted",
+                f"{path.name}: online objects are reassembled "
+                "and checksummed; application fields remain opaque",
+                severity="info",
+            )
+        elif suffix == ".idx":
+            idx = IDX(data)
+            db.execute("INSERT INTO idx_files VALUES(?,?)", (source_id, idx.header))
+            db.executemany(
+                "INSERT INTO idx_segments VALUES(?,?,?,?)",
+                ((source_id, r.number, r.offset, r.data) for r in idx.segments),
+            )
+            _issue(
+                db,
+                "idx_cache_only",
+                f"{path.name}: QDF index-cache segments are preserved "
+                "as cache evidence, not additional ledger transactions",
+                severity="info",
+            )
+        elif suffix != ".hcx":
+            _issue(
+                db,
+                "opaque_companion",
+                f"{path.name}: no decoder; complete original bytes are retained in source_files",
+                severity="info",
+            )
 
 
 def _write_records(db: sqlite3.Connection, qdf: QDF) -> RecordIDs:
@@ -316,7 +581,28 @@ def _build_report(
     original: bytes,
     output_path: Path,
 ) -> RecoveryReport:
-    tables = ("accounts", "categories", "strings", "transactions", "legacy_identifiers")
+    tables = (
+        "accounts",
+        "categories",
+        "strings",
+        "transactions",
+        "legacy_identifiers",
+        "hcx_files",
+        "hcx_nodes",
+        "hcx_index_entries",
+        "hcx_exchange_rates",
+        "qph_files",
+        "qph_symbols",
+        "qph_quotes",
+        "qph_unused_regions",
+        "qsd_files",
+        "qsd_records",
+        "qel_files",
+        "qel_records",
+        "qel_record_parts",
+        "idx_files",
+        "idx_segments",
+    )
     counts = {table: _integer(_rows(db, f"SELECT count(*) FROM {table}")[0][0]) for table in tables}
     dates = _rows(db, "SELECT min(posted_date),max(posted_date) FROM transactions")[0]
     accounts: list[AccountCount] = [
@@ -387,6 +673,8 @@ def convert(
         db.executescript(files("quicken_qdf").joinpath("schema.sql").read_text(encoding="utf-8"))
         with db:
             _write_sources(db, snapshots, qdf)
+            _write_hcx(db, snapshots)
+            _write_other_companions(db, snapshots)
             record_ids = _write_records(db, qdf)
             strings, accounts, categories = _write_references(db, qdf, record_ids)
             _write_identifiers(db, qdf, record_ids)

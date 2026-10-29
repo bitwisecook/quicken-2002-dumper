@@ -1,5 +1,5 @@
 PRAGMA foreign_keys = ON;
-PRAGMA user_version = 1;
+PRAGMA user_version = 2;
 
 CREATE TABLE source_files (
     id INTEGER PRIMARY KEY,
@@ -118,6 +118,63 @@ CREATE TABLE recovery_issues (
     detail TEXT NOT NULL
 ) STRICT;
 
+CREATE TABLE hcx_files (
+    source_file_id INTEGER PRIMARY KEY REFERENCES source_files(id),
+    header_bytes BLOB NOT NULL CHECK(length(header_bytes) = 1024),
+    node_size INTEGER NOT NULL,
+    root_node INTEGER NOT NULL,
+    declared_record_count INTEGER NOT NULL
+) STRICT;
+
+CREATE TABLE hcx_nodes (
+    source_file_id INTEGER NOT NULL REFERENCES hcx_files(source_file_id),
+    node_number INTEGER NOT NULL,
+    file_offset INTEGER NOT NULL,
+    level INTEGER NOT NULL,
+    left_child INTEGER NOT NULL,
+    next_node INTEGER NOT NULL,
+    previous_node INTEGER NOT NULL,
+    entry_count INTEGER NOT NULL,
+    free_bytes INTEGER NOT NULL,
+    node_bytes BLOB NOT NULL,
+    active INTEGER NOT NULL CHECK(active IN (0, 1)),
+    PRIMARY KEY(source_file_id, node_number)
+) STRICT;
+
+CREATE TABLE hcx_index_entries (
+    source_file_id INTEGER NOT NULL,
+    node_number INTEGER NOT NULL,
+    node_offset INTEGER NOT NULL,
+    index_number INTEGER NOT NULL,
+    duplicate INTEGER NOT NULL,
+    record_number INTEGER NOT NULL,
+    key_bytes BLOB NOT NULL,
+    payload_bytes BLOB NOT NULL,
+    child_node INTEGER,
+    original_bytes BLOB NOT NULL,
+    PRIMARY KEY(source_file_id, node_number, node_offset),
+    FOREIGN KEY(source_file_id, node_number) REFERENCES hcx_nodes(source_file_id, node_number)
+) STRICT;
+
+CREATE TABLE hcx_exchange_rates (
+    source_file_id INTEGER NOT NULL,
+    record_number INTEGER NOT NULL,
+    currency_ref INTEGER NOT NULL,
+    rate_date TEXT NOT NULL CHECK(length(rate_date) = 10),
+    packed_date INTEGER NOT NULL,
+    exchange_rate REAL NOT NULL,
+    legacy_flags INTEGER,
+    node_number INTEGER NOT NULL,
+    node_offset INTEGER NOT NULL,
+    record_bytes BLOB NOT NULL,
+    PRIMARY KEY(source_file_id, record_number),
+    FOREIGN KEY(source_file_id, node_number, node_offset)
+        REFERENCES hcx_index_entries(source_file_id, node_number, node_offset)
+) STRICT;
+
+CREATE INDEX hcx_exchange_rates_currency_date
+    ON hcx_exchange_rates(source_file_id, currency_ref, rate_date);
+
 CREATE INDEX transactions_account_date ON transactions(account_id, posted_date, id);
 CREATE INDEX transactions_category_date ON transactions(category_id, posted_date);
 CREATE INDEX categories_parent ON categories(parent_id);
@@ -139,3 +196,169 @@ LEFT JOIN strings m ON m.id = t.memo_string_id
 LEFT JOIN categories c ON c.id = t.category_id
 LEFT JOIN accounts ta ON ta.id = t.transfer_account_id
 LEFT JOIN legacy_identifiers i ON i.target_record_id = t.record_id;
+
+CREATE TABLE qel_files (
+    source_file_id INTEGER PRIMARY KEY REFERENCES source_files(id),
+    header_bytes BLOB NOT NULL CHECK(length(header_bytes) = 1024),
+    node_size INTEGER NOT NULL,
+    root_node INTEGER NOT NULL,
+    declared_record_count INTEGER NOT NULL
+) STRICT;
+
+CREATE TABLE qel_nodes (
+    source_file_id INTEGER NOT NULL REFERENCES qel_files(source_file_id),
+    node_number INTEGER NOT NULL,
+    file_offset INTEGER NOT NULL,
+    level INTEGER NOT NULL,
+    left_child INTEGER NOT NULL,
+    next_node INTEGER NOT NULL,
+    previous_node INTEGER NOT NULL,
+    entry_count INTEGER NOT NULL,
+    free_bytes INTEGER NOT NULL,
+    node_bytes BLOB NOT NULL,
+    active INTEGER NOT NULL CHECK(active IN (0, 1)),
+    PRIMARY KEY(source_file_id, node_number)
+) STRICT;
+
+CREATE TABLE qel_index_entries (
+    source_file_id INTEGER NOT NULL,
+    node_number INTEGER NOT NULL,
+    node_offset INTEGER NOT NULL,
+    index_number INTEGER NOT NULL,
+    duplicate INTEGER NOT NULL,
+    record_number INTEGER NOT NULL,
+    key_bytes BLOB NOT NULL,
+    payload_bytes BLOB NOT NULL,
+    child_node INTEGER,
+    original_bytes BLOB NOT NULL,
+    PRIMARY KEY(source_file_id, node_number, node_offset),
+    FOREIGN KEY(source_file_id, node_number) REFERENCES qel_nodes(source_file_id, node_number)
+) STRICT;
+
+
+CREATE TABLE qel_records (
+    source_file_id INTEGER NOT NULL REFERENCES qel_files(source_file_id),
+    record_number INTEGER NOT NULL,
+    index1_key BLOB NOT NULL,
+    index2_key BLOB NOT NULL,
+    descriptor_signature INTEGER NOT NULL,
+    stored_checksum INTEGER NOT NULL,
+    record_state INTEGER NOT NULL,
+    payload BLOB NOT NULL,
+    PRIMARY KEY(source_file_id, record_number)
+) STRICT;
+
+CREATE TABLE qel_record_parts (
+    source_file_id INTEGER NOT NULL,
+    record_number INTEGER NOT NULL,
+    part_number INTEGER NOT NULL,
+    node_number INTEGER NOT NULL,
+    node_offset INTEGER NOT NULL,
+    PRIMARY KEY(source_file_id, record_number, part_number),
+    FOREIGN KEY(source_file_id, record_number) REFERENCES qel_records(source_file_id, record_number),
+    FOREIGN KEY(source_file_id, node_number, node_offset)
+        REFERENCES qel_index_entries(source_file_id, node_number, node_offset)
+) STRICT;
+
+CREATE TABLE qsd_files (
+    source_file_id INTEGER PRIMARY KEY REFERENCES source_files(id),
+    identification TEXT NOT NULL,
+    major_version INTEGER NOT NULL,
+    minor_version INTEGER NOT NULL,
+    revision INTEGER NOT NULL,
+    header_bytes BLOB NOT NULL CHECK(length(header_bytes) = 128)
+) STRICT;
+
+CREATE TABLE qsd_records (
+    source_file_id INTEGER NOT NULL REFERENCES qsd_files(source_file_id),
+    record_number INTEGER NOT NULL,
+    file_offset INTEGER NOT NULL,
+    record_type INTEGER NOT NULL,
+    legacy_id INTEGER NOT NULL,
+    deleted INTEGER NOT NULL CHECK(deleted IN (0, 1)),
+    is_eof INTEGER NOT NULL CHECK(is_eof IN (0, 1)),
+    name TEXT NOT NULL,
+    name_bytes BLOB NOT NULL,
+    header_bytes BLOB NOT NULL CHECK(length(header_bytes) = 64),
+    payload BLOB NOT NULL,
+    trailer_bytes BLOB NOT NULL CHECK(length(trailer_bytes) = 2),
+    PRIMARY KEY(source_file_id, record_number)
+) STRICT;
+
+CREATE VIEW qsd_current_records AS
+SELECT * FROM qsd_records WHERE deleted = 0 AND is_eof = 0;
+
+CREATE TABLE idx_files (
+    source_file_id INTEGER PRIMARY KEY REFERENCES source_files(id),
+    directory_bytes BLOB NOT NULL
+) STRICT;
+
+CREATE TABLE idx_segments (
+    source_file_id INTEGER NOT NULL REFERENCES idx_files(source_file_id),
+    segment_number INTEGER NOT NULL,
+    file_offset INTEGER NOT NULL,
+    original_bytes BLOB NOT NULL,
+    PRIMARY KEY(source_file_id, segment_number)
+) STRICT;
+
+CREATE TABLE qph_files (
+    source_file_id INTEGER PRIMARY KEY REFERENCES source_files(id),
+    version INTEGER NOT NULL,
+    header_bytes BLOB NOT NULL CHECK(length(header_bytes) = 32)
+) STRICT;
+
+CREATE TABLE qph_symbols (
+    source_file_id INTEGER NOT NULL REFERENCES qph_files(source_file_id),
+    file_offset INTEGER NOT NULL,
+    next_offset INTEGER NOT NULL,
+    identity_type INTEGER NOT NULL,
+    symbol TEXT,
+    exchange_code INTEGER,
+    stored_exchange_code INTEGER,
+    file_identity TEXT,
+    security_ref INTEGER,
+    quote_head INTEGER NOT NULL,
+    original_bytes BLOB NOT NULL CHECK(length(original_bytes) = 275),
+    PRIMARY KEY(source_file_id, file_offset)
+) STRICT;
+
+CREATE TABLE qph_quotes (
+    source_file_id INTEGER NOT NULL,
+    file_offset INTEGER NOT NULL,
+    symbol_offset INTEGER NOT NULL,
+    next_offset INTEGER NOT NULL,
+    quote_date TEXT NOT NULL CHECK(length(quote_date) = 10),
+    packed_date INTEGER NOT NULL,
+    priority INTEGER NOT NULL,
+    kind INTEGER NOT NULL,
+    field_mask INTEGER,
+    close REAL,
+    high REAL,
+    low REAL,
+    volume INTEGER,
+    volume_base INTEGER,
+    volume_multiplier INTEGER,
+    split_numerator REAL,
+    split_denominator REAL,
+    legacy_status INTEGER,
+    original_bytes BLOB NOT NULL CHECK(length(original_bytes) = 54),
+    PRIMARY KEY(source_file_id, file_offset),
+    FOREIGN KEY(source_file_id, symbol_offset) REFERENCES qph_symbols(source_file_id, file_offset)
+) STRICT;
+
+CREATE TABLE qph_unused_regions (
+    source_file_id INTEGER NOT NULL REFERENCES qph_files(source_file_id),
+    file_offset INTEGER NOT NULL,
+    kind TEXT NOT NULL CHECK(kind IN ('free_symbol', 'free_quote', 'unclaimed')),
+    next_offset INTEGER,
+    original_bytes BLOB NOT NULL,
+    PRIMARY KEY(source_file_id, file_offset)
+) STRICT;
+
+CREATE VIEW share_prices AS
+SELECT q.source_file_id, s.symbol, s.exchange_code, s.file_identity, s.security_ref,
+       q.quote_date, q.priority, q.close, q.high, q.low, q.volume, q.legacy_status,
+       q.file_offset AS quote_offset, s.file_offset AS symbol_offset
+FROM qph_quotes q JOIN qph_symbols s
+ON s.source_file_id = q.source_file_id AND s.file_offset = q.symbol_offset
+WHERE q.kind = 0;

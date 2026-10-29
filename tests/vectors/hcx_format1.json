@@ -1,0 +1,581 @@
+{
+  "description": "Frozen synthetic C-Index HCX layout fixtures. Created once from manually specified native format; never regenerated to accommodate decoder changes. Contains no Quicken/private file bytes.",
+  "cases": [
+    {
+      "name": "empty",
+      "byte_count": 5120,
+      "sha256": "4cf2f4769c675582eafb88c8629a886a77f3a1bb1b5ce6ac5976665c708e67b6",
+      "segments": [
+        {
+          "offset": 4,
+          "hex": "56"
+        },
+        {
+          "offset": 8,
+          "hex": "01"
+        },
+        {
+          "offset": 16,
+          "hex": "41"
+        },
+        {
+          "offset": 20,
+          "hex": "4c"
+        },
+        {
+          "offset": 24,
+          "hex": "49"
+        },
+        {
+          "offset": 28,
+          "hex": "01"
+        },
+        {
+          "offset": 32,
+          "hex": "44"
+        },
+        {
+          "offset": 36,
+          "hex": "01"
+        },
+        {
+          "offset": 40,
+          "hex": "41"
+        },
+        {
+          "offset": 44,
+          "hex": "2b"
+        },
+        {
+          "offset": 48,
+          "hex": "54"
+        },
+        {
+          "offset": 52,
+          "hex": "02"
+        },
+        {
+          "offset": 56,
+          "hex": "31"
+        },
+        {
+          "offset": 60,
+          "hex": "ffffffff"
+        },
+        {
+          "offset": 193,
+          "hex": "080505"
+        },
+        {
+          "offset": 242,
+          "hex": "02"
+        },
+        {
+          "offset": 1028,
+          "hex": "ffffffffffffffff"
+        },
+        {
+          "offset": 1040,
+          "hex": "ee07"
+        }
+      ],
+      "expected": {
+        "record_count": 0,
+        "node_count": 2,
+        "index_record_count": 0,
+        "rate": 1.25,
+        "flags": 0
+      }
+    },
+    {
+      "name": "populated",
+      "byte_count": 5120,
+      "sha256": "1b19e77978d8d6f63d2935e559771a9be7bc16bad5e25a737d80cc952e759623",
+      "segments": [
+        {
+          "offset": 4,
+          "hex": "56"
+        },
+        {
+          "offset": 8,
+          "hex": "01"
+        },
+        {
+          "offset": 16,
+          "hex": "41"
+        },
+        {
+          "offset": 20,
+          "hex": "4c"
+        },
+        {
+          "offset": 24,
+          "hex": "49"
+        },
+        {
+          "offset": 28,
+          "hex": "01"
+        },
+        {
+          "offset": 32,
+          "hex": "44"
+        },
+        {
+          "offset": 36,
+          "hex": "01"
+        },
+        {
+          "offset": 40,
+          "hex": "41"
+        },
+        {
+          "offset": 44,
+          "hex": "2b"
+        },
+        {
+          "offset": 48,
+          "hex": "54"
+        },
+        {
+          "offset": 52,
+          "hex": "02"
+        },
+        {
+          "offset": 56,
+          "hex": "31"
+        },
+        {
+          "offset": 60,
+          "hex": "ffffffff"
+        },
+        {
+          "offset": 68,
+          "hex": "01"
+        },
+        {
+          "offset": 193,
+          "hex": "080505"
+        },
+        {
+          "offset": 242,
+          "hex": "02"
+        },
+        {
+          "offset": 1028,
+          "hex": "ffffffffffffffff"
+        },
+        {
+          "offset": 1038,
+          "hex": "04"
+        },
+        {
+          "offset": 1040,
+          "hex": "9f070f01802a"
+        },
+        {
+          "offset": 1049,
+          "hex": "0807"
+        },
+        {
+          "offset": 1054,
+          "hex": "0b0768"
+        },
+        {
+          "offset": 1058,
+          "hex": "0a02802a"
+        },
+        {
+          "offset": 1065,
+          "hex": "07"
+        },
+        {
+          "offset": 1069,
+          "hex": "0a03802a"
+        },
+        {
+          "offset": 1076,
+          "hex": "0b0768"
+        },
+        {
+          "offset": 1080,
+          "hex": "2831802a"
+        },
+        {
+          "offset": 1088,
+          "hex": "efbefaa5"
+        },
+        {
+          "offset": 1095,
+          "hex": "01"
+        },
+        {
+          "offset": 1097,
+          "hex": "07"
+        },
+        {
+          "offset": 1101,
+          "hex": "02"
+        },
+        {
+          "offset": 1103,
+          "hex": "0b0768"
+        },
+        {
+          "offset": 1107,
+          "hex": "03"
+        },
+        {
+          "offset": 1111,
+          "hex": "a03f04"
+        },
+        {
+          "offset": 1115,
+          "hex": "08"
+        },
+        {
+          "offset": 1119,
+          "hex": "ffff"
+        }
+      ],
+      "expected": {
+        "record_count": 1,
+        "node_count": 2,
+        "index_record_count": 4,
+        "rate": 1.25,
+        "flags": 8
+      }
+    },
+    {
+      "name": "split",
+      "byte_count": 9216,
+      "sha256": "947f815462e16ecf0339f26fdfec97de0eb7fca6995f42d1f0f88b013db406c2",
+      "segments": [
+        {
+          "offset": 4,
+          "hex": "56"
+        },
+        {
+          "offset": 8,
+          "hex": "01"
+        },
+        {
+          "offset": 12,
+          "hex": "02"
+        },
+        {
+          "offset": 16,
+          "hex": "41"
+        },
+        {
+          "offset": 20,
+          "hex": "4c"
+        },
+        {
+          "offset": 24,
+          "hex": "49"
+        },
+        {
+          "offset": 28,
+          "hex": "02"
+        },
+        {
+          "offset": 32,
+          "hex": "44"
+        },
+        {
+          "offset": 36,
+          "hex": "03"
+        },
+        {
+          "offset": 40,
+          "hex": "41"
+        },
+        {
+          "offset": 44,
+          "hex": "2b"
+        },
+        {
+          "offset": 48,
+          "hex": "54"
+        },
+        {
+          "offset": 52,
+          "hex": "04"
+        },
+        {
+          "offset": 56,
+          "hex": "31"
+        },
+        {
+          "offset": 60,
+          "hex": "ffffffff"
+        },
+        {
+          "offset": 68,
+          "hex": "01"
+        },
+        {
+          "offset": 193,
+          "hex": "080505"
+        },
+        {
+          "offset": 242,
+          "hex": "02"
+        },
+        {
+          "offset": 1028,
+          "hex": "01"
+        },
+        {
+          "offset": 1032,
+          "hex": "ffffffff"
+        },
+        {
+          "offset": 1038,
+          "hex": "02"
+        },
+        {
+          "offset": 1040,
+          "hex": "d3070f01802a"
+        },
+        {
+          "offset": 1049,
+          "hex": "0807"
+        },
+        {
+          "offset": 1054,
+          "hex": "0b0768"
+        },
+        {
+          "offset": 1058,
+          "hex": "0a02802a"
+        },
+        {
+          "offset": 1065,
+          "hex": "07"
+        },
+        {
+          "offset": 3076,
+          "hex": "ffffffff"
+        },
+        {
+          "offset": 3086,
+          "hex": "02"
+        },
+        {
+          "offset": 3088,
+          "hex": "c0070a03802a"
+        },
+        {
+          "offset": 3097,
+          "hex": "0b0768"
+        },
+        {
+          "offset": 3101,
+          "hex": "2231802a"
+        },
+        {
+          "offset": 3109,
+          "hex": "efbef2a5"
+        },
+        {
+          "offset": 3116,
+          "hex": "01"
+        },
+        {
+          "offset": 3118,
+          "hex": "07"
+        },
+        {
+          "offset": 3122,
+          "hex": "02"
+        },
+        {
+          "offset": 3124,
+          "hex": "0b0768"
+        },
+        {
+          "offset": 3128,
+          "hex": "03"
+        },
+        {
+          "offset": 3132,
+          "hex": "a03fffff"
+        },
+        {
+          "offset": 5124,
+          "hex": "ffffffffffffffff01"
+        },
+        {
+          "offset": 5134,
+          "hex": "01"
+        },
+        {
+          "offset": 5136,
+          "hex": "df070e02802a"
+        },
+        {
+          "offset": 5145,
+          "hex": "07"
+        },
+        {
+          "offset": 5149,
+          "hex": "01"
+        }
+      ],
+      "expected": {
+        "record_count": 1,
+        "node_count": 4,
+        "index_record_count": 5,
+        "rate": 1.25,
+        "flags": 0
+      }
+    },
+    {
+      "name": "zero_suppressed",
+      "byte_count": 5120,
+      "sha256": "42114766556ab2b3a75c6dae2c69cf7a82d521a685889df6255ccb65cff8a20a",
+      "segments": [
+        {
+          "offset": 4,
+          "hex": "56"
+        },
+        {
+          "offset": 8,
+          "hex": "01"
+        },
+        {
+          "offset": 16,
+          "hex": "41"
+        },
+        {
+          "offset": 20,
+          "hex": "4c"
+        },
+        {
+          "offset": 24,
+          "hex": "49"
+        },
+        {
+          "offset": 28,
+          "hex": "01"
+        },
+        {
+          "offset": 32,
+          "hex": "44"
+        },
+        {
+          "offset": 36,
+          "hex": "01"
+        },
+        {
+          "offset": 40,
+          "hex": "41"
+        },
+        {
+          "offset": 44,
+          "hex": "2b"
+        },
+        {
+          "offset": 48,
+          "hex": "54"
+        },
+        {
+          "offset": 52,
+          "hex": "02"
+        },
+        {
+          "offset": 56,
+          "hex": "31"
+        },
+        {
+          "offset": 60,
+          "hex": "ffffffff"
+        },
+        {
+          "offset": 68,
+          "hex": "01"
+        },
+        {
+          "offset": 193,
+          "hex": "080505"
+        },
+        {
+          "offset": 242,
+          "hex": "02"
+        },
+        {
+          "offset": 1028,
+          "hex": "ffffffffffffffff"
+        },
+        {
+          "offset": 1038,
+          "hex": "04"
+        },
+        {
+          "offset": 1040,
+          "hex": "ab070f01802a"
+        },
+        {
+          "offset": 1049,
+          "hex": "0807"
+        },
+        {
+          "offset": 1054,
+          "hex": "0b0768"
+        },
+        {
+          "offset": 1058,
+          "hex": "0a02802a"
+        },
+        {
+          "offset": 1065,
+          "hex": "07"
+        },
+        {
+          "offset": 1069,
+          "hex": "0a03802a"
+        },
+        {
+          "offset": 1076,
+          "hex": "0b0768"
+        },
+        {
+          "offset": 1080,
+          "hex": "1c31802a"
+        },
+        {
+          "offset": 1088,
+          "hex": "efbe1aa5"
+        },
+        {
+          "offset": 1095,
+          "hex": "01"
+        },
+        {
+          "offset": 1097,
+          "hex": "07"
+        },
+        {
+          "offset": 1101,
+          "hex": "02"
+        },
+        {
+          "offset": 1103,
+          "hex": "0b0768"
+        },
+        {
+          "offset": 1107,
+          "hex": "ffff"
+        }
+      ],
+      "expected": {
+        "record_count": 1,
+        "node_count": 2,
+        "index_record_count": 4,
+        "rate": 0.0,
+        "flags": 0
+      }
+    }
+  ]
+}

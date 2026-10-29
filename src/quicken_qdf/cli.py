@@ -23,7 +23,13 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     parser.add_argument("input", type=Path)
     parser.add_argument("output", type=Path)
-    parser.add_argument("--companion", action="append", default=[], type=Path)
+    parser.add_argument(
+        "--companion",
+        action="append",
+        default=[],
+        type=Path,
+        help="Archive a companion; decode supported HCX, QPH, QSD, QEL and IDX layouts",
+    )
     parser.add_argument("--report", type=Path)
     args = parser.parse_args(None if argv is None else list(argv), namespace=Arguments())
     if args.report and args.report.exists():

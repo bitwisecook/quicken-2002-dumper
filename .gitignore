@@ -18,6 +18,8 @@ build/
 !/docs/
 /docs/*
 !/docs/file-format.md
+!/docs/hcx-format.md
+!/docs/companion-formats.md
 /tests/*
 !/tests/__init__.py
 !/tests/support.py

@@ -1,0 +1,412 @@
+{
+  "description": "Frozen synthetic QPH versions1,2,3. Manually fabricated field values, no vendor or private file bytes. Never regenerate historical fixture bytes to accommodate decoder changes.",
+  "cases": [
+    {
+      "name": "v1_empty",
+      "byte_count": 32,
+      "sha256": "01d0fabd251fcbbe2b93b4b927b26ad2a1a99077152e45ded1e678afa45dbec5",
+      "segments": [
+        {
+          "offset": 0,
+          "hex": "01"
+        }
+      ],
+      "version": 1,
+      "symbol": null,
+      "exchange": null,
+      "quote_count": 0
+    },
+    {
+      "name": "v1_long_symbol",
+      "byte_count": 415,
+      "sha256": "e44fe5f3ddd86c48544f3a676030cbb26d2f68f93c9c2b367cddef3f5ed28a1d",
+      "segments": [
+        {
+          "offset": 0,
+          "hex": "01"
+        },
+        {
+          "offset": 4,
+          "hex": "20"
+        },
+        {
+          "offset": 36,
+          "hex": "01"
+        },
+        {
+          "offset": 40,
+          "hex": "53594e5448455449432d4c4f4e472d5449434b4552"
+        },
+        {
+          "offset": 303,
+          "hex": "3301"
+        },
+        {
+          "offset": 307,
+          "hex": "6901"
+        },
+        {
+          "offset": 311,
+          "hex": "0b0768"
+        },
+        {
+          "offset": 315,
+          "hex": "3c"
+        },
+        {
+          "offset": 323,
+          "hex": "0f"
+        },
+        {
+          "offset": 325,
+          "hex": "0c"
+        },
+        {
+          "offset": 329,
+          "hex": "80f0fa820d"
+        },
+        {
+          "offset": 337,
+          "hex": "40787d0102"
+        },
+        {
+          "offset": 344,
+          "hex": "80"
+        },
+        {
+          "offset": 349,
+          "hex": "ffffffff02"
+        },
+        {
+          "offset": 357,
+          "hex": "04"
+        },
+        {
+          "offset": 365,
+          "hex": "0a0768"
+        },
+        {
+          "offset": 369,
+          "hex": "3c"
+        },
+        {
+          "offset": 373,
+          "hex": "01"
+        },
+        {
+          "offset": 377,
+          "hex": "03"
+        },
+        {
+          "offset": 384,
+          "hex": "8002"
+        }
+      ],
+      "version": 1,
+      "symbol": "SYNTHETIC-LONG-TICKER",
+      "exchange": 0,
+      "quote_count": 2
+    },
+    {
+      "name": "v2_exchange",
+      "byte_count": 415,
+      "sha256": "0f6c9c77a1e23ab59d0260ad91667e1a427fd6666fbd0f57435b0aeb4a4919ec",
+      "segments": [
+        {
+          "offset": 0,
+          "hex": "02"
+        },
+        {
+          "offset": 4,
+          "hex": "20"
+        },
+        {
+          "offset": 36,
+          "hex": "01"
+        },
+        {
+          "offset": 40,
+          "hex": "53594e5448"
+        },
+        {
+          "offset": 53,
+          "hex": "11"
+        },
+        {
+          "offset": 303,
+          "hex": "3301"
+        },
+        {
+          "offset": 307,
+          "hex": "6901"
+        },
+        {
+          "offset": 311,
+          "hex": "0b0768"
+        },
+        {
+          "offset": 315,
+          "hex": "3c"
+        },
+        {
+          "offset": 323,
+          "hex": "0f"
+        },
+        {
+          "offset": 325,
+          "hex": "0c"
+        },
+        {
+          "offset": 329,
+          "hex": "80f0fa820d"
+        },
+        {
+          "offset": 337,
+          "hex": "40787d0102"
+        },
+        {
+          "offset": 344,
+          "hex": "80"
+        },
+        {
+          "offset": 349,
+          "hex": "ffffffff02"
+        },
+        {
+          "offset": 357,
+          "hex": "04"
+        },
+        {
+          "offset": 365,
+          "hex": "0a0768"
+        },
+        {
+          "offset": 369,
+          "hex": "3c"
+        },
+        {
+          "offset": 373,
+          "hex": "01"
+        },
+        {
+          "offset": 377,
+          "hex": "03"
+        },
+        {
+          "offset": 384,
+          "hex": "8002"
+        }
+      ],
+      "version": 2,
+      "symbol": "SYNTH",
+      "exchange": 17,
+      "quote_count": 2
+    },
+    {
+      "name": "v3_exchange",
+      "byte_count": 415,
+      "sha256": "69e15ffec16712200534e1d56efd0bf0b1365406268648072c2869362c53381b",
+      "segments": [
+        {
+          "offset": 0,
+          "hex": "03"
+        },
+        {
+          "offset": 4,
+          "hex": "20"
+        },
+        {
+          "offset": 36,
+          "hex": "01"
+        },
+        {
+          "offset": 40,
+          "hex": "53594e5448"
+        },
+        {
+          "offset": 73,
+          "hex": "13"
+        },
+        {
+          "offset": 303,
+          "hex": "3301"
+        },
+        {
+          "offset": 307,
+          "hex": "6901"
+        },
+        {
+          "offset": 311,
+          "hex": "0b0768"
+        },
+        {
+          "offset": 315,
+          "hex": "3c"
+        },
+        {
+          "offset": 323,
+          "hex": "0f"
+        },
+        {
+          "offset": 325,
+          "hex": "0c"
+        },
+        {
+          "offset": 329,
+          "hex": "80f0fa820d"
+        },
+        {
+          "offset": 337,
+          "hex": "40787d0102"
+        },
+        {
+          "offset": 344,
+          "hex": "80"
+        },
+        {
+          "offset": 349,
+          "hex": "ffffffff02"
+        },
+        {
+          "offset": 357,
+          "hex": "04"
+        },
+        {
+          "offset": 365,
+          "hex": "0a0768"
+        },
+        {
+          "offset": 369,
+          "hex": "3c"
+        },
+        {
+          "offset": 373,
+          "hex": "01"
+        },
+        {
+          "offset": 377,
+          "hex": "03"
+        },
+        {
+          "offset": 384,
+          "hex": "8002"
+        }
+      ],
+      "version": 3,
+      "symbol": "SYNTH",
+      "exchange": 19,
+      "quote_count": 2
+    },
+    {
+      "name": "v3_local_identity_recycled",
+      "byte_count": 765,
+      "sha256": "28038d99ed74eee427323777094b3792ea70165ebcb12682bdc4f873014d8a37",
+      "segments": [
+        {
+          "offset": 0,
+          "hex": "03"
+        },
+        {
+          "offset": 4,
+          "hex": "20"
+        },
+        {
+          "offset": 8,
+          "hex": "9f01"
+        },
+        {
+          "offset": 12,
+          "hex": "b202"
+        },
+        {
+          "offset": 36,
+          "hex": "02"
+        },
+        {
+          "offset": 40,
+          "hex": "433a5c53594e5448455449435c4c4544474552"
+        },
+        {
+          "offset": 301,
+          "hex": "49"
+        },
+        {
+          "offset": 303,
+          "hex": "3301"
+        },
+        {
+          "offset": 307,
+          "hex": "6901"
+        },
+        {
+          "offset": 311,
+          "hex": "0b0768"
+        },
+        {
+          "offset": 315,
+          "hex": "3c"
+        },
+        {
+          "offset": 323,
+          "hex": "0f"
+        },
+        {
+          "offset": 325,
+          "hex": "0c"
+        },
+        {
+          "offset": 329,
+          "hex": "80f0fa820d"
+        },
+        {
+          "offset": 337,
+          "hex": "40787d0102"
+        },
+        {
+          "offset": 344,
+          "hex": "80"
+        },
+        {
+          "offset": 349,
+          "hex": "ffffffff02"
+        },
+        {
+          "offset": 357,
+          "hex": "04"
+        },
+        {
+          "offset": 365,
+          "hex": "0a0768"
+        },
+        {
+          "offset": 369,
+          "hex": "3c"
+        },
+        {
+          "offset": 373,
+          "hex": "01"
+        },
+        {
+          "offset": 377,
+          "hex": "03"
+        },
+        {
+          "offset": 384,
+          "hex": "8002"
+        },
+        {
+          "offset": 419,
+          "hex": "91919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191919191"
+        },
+        {
+          "offset": 694,
+          "hex": "92929292929292929292929292929292929292929292929292929292929292929292929292929292929292929292929292926f706171756520747261696c696e67206279746573"
+        }
+      ],
+      "version": 3,
+      "symbol": null,
+      "exchange": null,
+      "quote_count": 2
+    }
+  ]
+}
